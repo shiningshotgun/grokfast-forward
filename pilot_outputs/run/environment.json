@@ -1,0 +1,11 @@
+{
+  "python": "3.9.6 (default, Aug 25 2026, 21:26:21) \n[Clang 21.0.0 (clang-2100.3.34.2)]",
+  "executable": "<project>/.gemini/antigravity/scratch/PropertyLens/venv/bin/python",
+  "torch": "2.8.0",
+  "numpy": "2.0.2",
+  "backend": "cpu",
+  "mps_available": true,
+  "cpu_threads": 4,
+  "maxrss": 322748416,
+  "maxrss_unit": "bytes (macOS ru_maxrss; Linux would be KB)"
+}

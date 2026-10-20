@@ -1,0 +1,14 @@
+.venv/
+venv/
+__pycache__/
+*.pyc
+.DS_Store
+.idea/
+.vscode/
+.env
+.env.*
+*.zip
+*.pt
+*.pth
+*.ckpt
+*.safetensors

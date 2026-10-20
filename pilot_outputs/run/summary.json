@@ -1,0 +1,118 @@
+{
+  "run_id": "run_20261020_163459",
+  "deadline_start_monotonic": 0.666457291,
+  "total_elapsed_s": 8.356290792,
+  "deadline_s": 600,
+  "maxrss_bytes": 322748416,
+  "arms": [
+    {
+      "name": "none_wd0",
+      "status": "completed_100",
+      "updates_done": 100,
+      "val_at_0": {
+        "step": 0,
+        "loss": 4.731870249784279,
+        "acc": 0.012027491408934709,
+        "n": 4656,
+        "complete": true,
+        "full_set": true
+      },
+      "val_at_100": {
+        "step": 100,
+        "loss": 4.9189723283564515,
+        "acc": 0.01138316151202749,
+        "n": 4656,
+        "complete": true,
+        "full_set": true
+      },
+      "train_last": {
+        "step": 100,
+        "loss": 4.424479961395264,
+        "acc": 0.0625,
+        "update_time_s": 0.005021166000000132
+      }
+    },
+    {
+      "name": "ema_wd0",
+      "status": "completed_100",
+      "updates_done": 100,
+      "val_at_0": {
+        "step": 0,
+        "loss": 4.731870249784279,
+        "acc": 0.012027491408934709,
+        "n": 4656,
+        "complete": true,
+        "full_set": true
+      },
+      "val_at_100": {
+        "step": 100,
+        "loss": 4.607067686585626,
+        "acc": 0.0156786941580756,
+        "n": 4656,
+        "complete": true,
+        "full_set": true
+      },
+      "train_last": {
+        "step": 100,
+        "loss": 4.596696853637695,
+        "acc": 0.0,
+        "update_time_s": 0.006064165999999815
+      }
+    },
+    {
+      "name": "none_wd0.005",
+      "status": "completed_100",
+      "updates_done": 100,
+      "val_at_0": {
+        "step": 0,
+        "loss": 4.731870249784279,
+        "acc": 0.012027491408934709,
+        "n": 4656,
+        "complete": true,
+        "full_set": true
+      },
+      "val_at_100": {
+        "step": 100,
+        "loss": 4.579527689419251,
+        "acc": 0.014604810996563574,
+        "n": 4656,
+        "complete": true,
+        "full_set": true
+      },
+      "train_last": {
+        "step": 100,
+        "loss": 4.585752010345459,
+        "acc": 0.0,
+        "update_time_s": 0.0056495409999994806
+      }
+    },
+    {
+      "name": "ema_wd0.005",
+      "status": "completed_100",
+      "updates_done": 100,
+      "val_at_0": {
+        "step": 0,
+        "loss": 4.731870249784279,
+        "acc": 0.012027491408934709,
+        "n": 4656,
+        "complete": true,
+        "full_set": true
+      },
+      "val_at_100": {
+        "step": 100,
+        "loss": 4.575747127795138,
+        "acc": 0.017826460481099655,
+        "n": 4656,
+        "complete": true,
+        "full_set": true
+      },
+      "train_last": {
+        "step": 100,
+        "loss": 4.5994648933410645,
+        "acc": 0.0,
+        "update_time_s": 0.006368166999999758
+      }
+    }
+  ],
+  "memory_limitations": "ru_maxrss peak resident set of this process; on macOS reported in bytes. Includes interpreter/OS overhead; not per-arm; CPU only."
+}

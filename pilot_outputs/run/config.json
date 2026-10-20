@@ -1,0 +1,78 @@
+{
+  "source": {
+    "repo": "ironjr/grokfast",
+    "commit": "93b2248e351d4bb9e4dda8ac32a6999b8970404b",
+    "files": [
+      "main.py",
+      "grokfast.py",
+      "README.md"
+    ],
+    "urls": [
+      "https://raw.githubusercontent.com/ironjr/grokfast/93b2248e351d4bb9e4dda8ac32a6999b8970404b/main.py",
+      "https://raw.githubusercontent.com/ironjr/grokfast/93b2248e351d4bb9e4dda8ac32a6999b8970404b/grokfast.py",
+      "https://raw.githubusercontent.com/ironjr/grokfast/93b2248e351d4bb9e4dda8ac32a6999b8970404b/README.md"
+    ]
+  },
+  "task": {
+    "p": 97,
+    "x": "0..96",
+    "y": "1..96",
+    "n_examples": 9312,
+    "split": "50/50",
+    "tokens": 5,
+    "result_only": true,
+    "vocab": 99
+  },
+  "model": {
+    "layers": 2,
+    "width": 128,
+    "heads": 4
+  },
+  "optimizer": {
+    "name": "Adam",
+    "lr": 0.001,
+    "betas": [
+      0.9,
+      0.98
+    ]
+  },
+  "batch_size": 512,
+  "warmup": "LambdaLR lambda update: 1 if update > 10 else update/10 (10 updates)",
+  "arms": [
+    {
+      "name": "none_wd0",
+      "filter": "none",
+      "wd": 0.0
+    },
+    {
+      "name": "ema_wd0",
+      "filter": "ema",
+      "wd": 0.0
+    },
+    {
+      "name": "none_wd0.005",
+      "filter": "none",
+      "wd": 0.005
+    },
+    {
+      "name": "ema_wd0.005",
+      "filter": "ema",
+      "wd": 0.005
+    }
+  ],
+  "ema": {
+    "alpha": 0.98,
+    "lamb": 2.0
+  },
+  "limits": {
+    "updates_per_arm": 100,
+    "total_seconds": 600
+  },
+  "seeds": {
+    "model": 0,
+    "split": 0,
+    "order": 0,
+    "independent_streams": true,
+    "note": "Model init uses torch.manual_seed(0); split and order use separate generators seeded 0. This differs from upstream's single global stream, so exact upstream trajectories are not reproduced; arms share identical init/split/order."
+  }
+}

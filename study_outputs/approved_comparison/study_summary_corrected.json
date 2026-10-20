@@ -1,0 +1,282 @@
+{
+  "supersedes": "study_summary.json",
+  "provenance_note": "The original study_summary.json and study_report.md contain erroneous derived metrics (an invalid cumulative global-time ratio of 0.6784258 and tie-break loss misattribution) and are preserved unmodified for provenance. This corrected document recomputes all summary metrics directly from the raw arm metrics JSON records (arm_*.json) without retraining or modifying raw training data.",
+  "run_id": "approved_comparison_20261020",
+  "global_deadline_start_monotonic": 1.043484791,
+  "work_elapsed_s": 5679.6152087089995,
+  "work_elapsed_human": "94m 39.615s (~94 minutes 40 seconds)",
+  "reporting_overhead_s": 0.008306209000693343,
+  "deadline_s": 6000,
+  "per_arm_deadline_s": 1500,
+  "cap_per_arm": 50000,
+  "maxrss_bytes": 309510144,
+  "eval_grid_cadence_updates": 100,
+  "full_validation_set_size": 4656,
+  "execution_notes": [
+    "Recorded work time is 5679.615209s out of a 6000s ceiling (peak RSS: 309510144 bytes).",
+    "The work timer started after initial marker file creation and thread/device setup; it does not certify a literal all-setup-inclusive 100 minutes.",
+    "In-flight deadline overruns and partial final validations are honestly retained (no hard-kill enforcement).",
+    "Raw test log records 32 tests passing with OK and EXIT_STATUS=0, but lacks timestamp headers and invocation command; two tests (chunked-vs-continuous state equivalence and deadline handling) feature weak assertions that do not compare model states or check individual arm deadline skipping. Testing does not prove pre-run execution order.",
+    "Single paired seed (seed 0) across arms with unequal final caps (50000, 41919, 46400, 43886); does not constitute full-paper replication or universal mechanism claims."
+  ],
+  "arms": [
+    {
+      "name": "none_wd0",
+      "filter": "none",
+      "weight_decay": 0.0,
+      "status": "completed_cap",
+      "updates_done": 50000,
+      "endpoint_step": 50000,
+      "step0_eval_end_work_elapsed_s": 0.745517875,
+      "first_crossing_95": {
+        "reached": false,
+        "observed_step": null,
+        "accuracy": null,
+        "loss": null,
+        "work_elapsed_s": null,
+        "grid_cadence_updates": 100,
+        "note": "No full validation reached >=0.95 within stopping limit."
+      },
+      "post_crossing_metrics": null,
+      "best_complete_accuracy": {
+        "accuracy": 0.9390034364261168,
+        "first_step": 50000,
+        "loss_at_first_step": 0.9999595360247949,
+        "tied_steps_count": 1,
+        "note": "Loss at the first maximum-accuracy tie is not necessarily the minimum loss across the run."
+      },
+      "minimum_complete_loss": {
+        "loss": 0.9340714076949969,
+        "step": 48700,
+        "accuracy_at_step": 0.9347079037800687
+      },
+      "last_complete_eval": {
+        "step": 50000,
+        "accuracy": 0.9390034364261168,
+        "loss": 0.9999595360247949,
+        "work_elapsed_s": 1176.504417334,
+        "n": 4656,
+        "complete": true,
+        "full_set": true
+      },
+      "final_recorded_eval": {
+        "step": 50000,
+        "accuracy": 0.9390034364261168,
+        "loss": 0.9999595360247949,
+        "n": 4656,
+        "complete": true,
+        "full_set": true,
+        "is_partial": false,
+        "partial_note": null
+      },
+      "censored": true,
+      "censoring_note": "Censored at last complete evaluation (step 50000); not proven unable to cross given additional updates or budget."
+    },
+    {
+      "name": "ema_wd0",
+      "filter": "ema",
+      "weight_decay": 0.0,
+      "status": "deadline_stopped",
+      "updates_done": 41919,
+      "endpoint_step": 41919,
+      "step0_eval_end_work_elapsed_s": 1177.8870466669998,
+      "first_crossing_95": {
+        "reached": false,
+        "observed_step": null,
+        "accuracy": null,
+        "loss": null,
+        "work_elapsed_s": null,
+        "grid_cadence_updates": 100,
+        "note": "No full validation reached >=0.95 within stopping limit."
+      },
+      "post_crossing_metrics": null,
+      "best_complete_accuracy": {
+        "accuracy": 0.613831615120275,
+        "first_step": 41900,
+        "loss_at_first_step": 5.522185001176657,
+        "tied_steps_count": 1,
+        "note": "Loss at the first maximum-accuracy tie is not necessarily the minimum loss across the run."
+      },
+      "minimum_complete_loss": {
+        "loss": 4.607067686585626,
+        "step": 100,
+        "accuracy_at_step": 0.0156786941580756
+      },
+      "last_complete_eval": {
+        "step": 41900,
+        "accuracy": 0.613831615120275,
+        "loss": 5.522185001176657,
+        "work_elapsed_s": 2676.751089,
+        "n": 4656,
+        "complete": true,
+        "full_set": true
+      },
+      "final_recorded_eval": {
+        "step": 41900,
+        "accuracy": 0.613831615120275,
+        "loss": 5.522185001176657,
+        "n": 4656,
+        "complete": true,
+        "full_set": true,
+        "is_partial": false,
+        "partial_note": null
+      },
+      "censored": true,
+      "censoring_note": "Censored at last complete evaluation (step 41900); not proven unable to cross given additional updates or budget."
+    },
+    {
+      "name": "none_wd0.005",
+      "filter": "none",
+      "weight_decay": 0.005,
+      "status": "deadline_stopped",
+      "updates_done": 46400,
+      "endpoint_step": 46400,
+      "step0_eval_end_work_elapsed_s": 2678.328588667,
+      "first_crossing_95": {
+        "reached": true,
+        "observed_step": 5900,
+        "accuracy": 0.9606958762886598,
+        "loss": 0.27730626538651915,
+        "work_elapsed_s": 2861.595496125,
+        "grid_cadence_updates": 100,
+        "note": "First observed crossing on 100-update evaluation grid; not an exact latent crossing time."
+      },
+      "post_crossing_metrics": {
+        "post_crossing_full_eval_count": 404,
+        "sub95_observation_count": 12,
+        "post_crossing_min_accuracy": 0.5732388316151202,
+        "post_crossing_min_accuracy_step": 11900,
+        "post_crossing_min_accuracy_loss": 1.2714275514956601,
+        "reversals_note": "Counts discrete 100-update evaluation observations below 0.95; does not measure time duration or independent collapse episodes."
+      },
+      "best_complete_accuracy": {
+        "accuracy": 1.0,
+        "first_step": 9600,
+        "loss_at_first_step": 0.04289249725050943,
+        "tied_steps_count": 337,
+        "note": "Loss at the first maximum-accuracy tie is not necessarily the minimum loss across the run."
+      },
+      "minimum_complete_loss": {
+        "loss": 0.03260423116309127,
+        "step": 34400,
+        "accuracy_at_step": 1.0
+      },
+      "last_complete_eval": {
+        "step": 46300,
+        "accuracy": 1.0,
+        "loss": 0.04062895307835845,
+        "work_elapsed_s": 4174.971347125,
+        "n": 4656,
+        "complete": true,
+        "full_set": true
+      },
+      "final_recorded_eval": {
+        "step": 46400,
+        "accuracy": 1.0,
+        "loss": 0.037815649062395096,
+        "n": 1536,
+        "complete": false,
+        "full_set": false,
+        "is_partial": true,
+        "partial_note": "Partial evaluation (1536/4656 examples) due to deadline overrun; excluded from full-set conclusions."
+      },
+      "censored": false,
+      "censoring_note": null
+    },
+    {
+      "name": "ema_wd0.005",
+      "filter": "ema",
+      "weight_decay": 0.005,
+      "status": "deadline_stopped",
+      "updates_done": 43886,
+      "endpoint_step": 43886,
+      "step0_eval_end_work_elapsed_s": 4179.19392325,
+      "first_crossing_95": {
+        "reached": true,
+        "observed_step": 1200,
+        "accuracy": 0.9523195876288659,
+        "loss": 0.2607919403265432,
+        "work_elapsed_s": 4217.993332375,
+        "grid_cadence_updates": 100,
+        "note": "First observed crossing on 100-update evaluation grid; not an exact latent crossing time."
+      },
+      "post_crossing_metrics": {
+        "post_crossing_full_eval_count": 426,
+        "sub95_observation_count": 3,
+        "post_crossing_min_accuracy": 0.8556701030927835,
+        "post_crossing_min_accuracy_step": 19700,
+        "post_crossing_min_accuracy_loss": 0.5292610859952841,
+        "reversals_note": "Counts discrete 100-update evaluation observations below 0.95; does not measure time duration or independent collapse episodes."
+      },
+      "best_complete_accuracy": {
+        "accuracy": 1.0,
+        "first_step": 1800,
+        "loss_at_first_step": 0.02522015791143134,
+        "tied_steps_count": 396,
+        "note": "Loss at the first maximum-accuracy tie is not necessarily the minimum loss across the run."
+      },
+      "minimum_complete_loss": {
+        "loss": 0.005651290864520466,
+        "step": 8800,
+        "accuracy_at_step": 1.0
+      },
+      "last_complete_eval": {
+        "step": 43800,
+        "accuracy": 1.0,
+        "loss": 0.008490322538590719,
+        "work_elapsed_s": 5676.114294584,
+        "n": 4656,
+        "complete": true,
+        "full_set": true
+      },
+      "final_recorded_eval": {
+        "step": 43800,
+        "accuracy": 1.0,
+        "loss": 0.008490322538590719,
+        "n": 4656,
+        "complete": true,
+        "full_set": true,
+        "is_partial": false,
+        "partial_note": null
+      },
+      "censored": false,
+      "censoring_note": null
+    }
+  ],
+  "crossing_speedups": [
+    {
+      "pair": "none_wd0 vs ema_wd0",
+      "estimable": false,
+      "reason": "Neither arm achieved >=0.95 accuracy on full validation within stopping limits (none_wd0 capped at 50,000 updates, ema_wd0 stopped at 41,919 updates with last complete validation at 41,900). Both arms are censored; speedup is not estimable."
+    },
+    {
+      "pair": "none_wd0.005 vs ema_wd0.005",
+      "first_crossing_steps": {
+        "baseline_none_wd0.005": 5900,
+        "ema_wd0.005": 1200
+      },
+      "update_ratio_baseline_over_ema": 4.916666666666667,
+      "update_ratio_definition": "5900 / 1200 = 4.9166667. Ratio of updates to first observed full >=0.95 validation accuracy, evaluated on a 100-update grid (not an exact latent crossing time).",
+      "rejected_old_work_time_ratio": {
+        "value": 0.6784257988652956,
+        "calculation": "2861.595496125 / 4217.993332375 = 0.6784258",
+        "reason_rejected": "REJECTED as invalid. runner.py logged work_elapsed_s measured continuously from GLOBAL study start (clock() - global_start). Because study arms ran sequentially (none_wd0 -> ema_wd0 -> none_wd0.005 -> ema_wd0.005), EMA's timestamp (4217.993s) accumulated the execution duration of all three prior arms (~4179s prior work), while baseline's timestamp (2861.595s) accumulated only the first two arms (~2678s prior work). Dividing these cumulative global timestamps compares non-coincident, offset time spans and produces a meaningless speedup number."
+      },
+      "recovered_interval_comparison": {
+        "metric_name": "step0_eval_end_to_first_crossing_eval_end_interval",
+        "baseline_step0_eval_end_s": 2678.328588667,
+        "baseline_crossing_eval_end_s": 2861.595496125,
+        "baseline_interval_s": 183.26690745799988,
+        "ema_step0_eval_end_s": 4179.19392325,
+        "ema_crossing_eval_end_s": 4217.993332375,
+        "ema_interval_s": 38.79940912500024,
+        "speedup_ratio_baseline_over_ema": 4.72344583567157,
+        "formula": "(2861.595496125 - 2678.328588667) / (4217.993332375 - 4179.19392325) = 183.266907458s / 38.799409125s = 4.72344584",
+        "units": "seconds",
+        "inclusions": "Intervening training updates, periodic 100-step full validations, evaluation overhead, and disk/checkpoint I/O between step 0 validation END and first >=0.95 validation END.",
+        "exclusions": "Model, data, and optimizer initialization; device/thread setup; and the initial step 0 validation execution.",
+        "qualifications": "Precisely bounded interval from post-initialization validation completion to crossing validation completion. This is NOT a setup-inclusive arm runtime or whole-study speedup. Exact arm-start timestamps were not recorded by runner.py."
+      }
+    }
+  ]
+}
