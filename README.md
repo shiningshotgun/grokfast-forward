@@ -2,6 +2,7 @@
 
 Small, self-contained CPU runner for the Grokfast modular-multiplication
 grokking setup, with a resource pilot and a capped four-arm comparison study.
+How this study compares with the Grokfast paper: [paper_vs_study.md](paper_vs_study.md).
 
 ## Study outputs
 
