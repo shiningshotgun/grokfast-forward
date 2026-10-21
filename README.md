@@ -15,6 +15,31 @@ The authoritative study results are in `study_outputs/approved_comparison/`:
 - `arm_*.json` are the raw per-arm metric records.
 - `what_this_taught_me.md` (repo root) is the author's reflection on the study.
 
+## Figures
+
+![Validation accuracy](figures/validation_accuracy.svg)
+
+Validation accuracy on the full validation set (n = 4656), four arms, logged
+every 100 updates. Y axis is validation accuracy (%); X axis is update.
+Arms end at different update counts (about 50,000, 41,900, 46,300, 43,800).
+With weight decay 0.005, EMA first reached 95% validation accuracy at update
+1,200 and the baseline at update 5,900 (first observed on the 100-update
+grid); neither weight-decay-0 arm reached 95% before it stopped; accuracy dips
+below 95% appear after first crossing in both weight-decay-0.005 arms.
+
+![Validation loss](figures/validation_loss.svg)
+
+Validation loss (cross-entropy, log scale) on the full validation set
+(n = 4656), four arms, logged every 100 updates. X axis is update. Arms end
+at different update counts (about 50,000, 41,900, 46,300, 43,800).
+
+These figures plot recorded study data only, from
+`study_outputs/approved_comparison/arm_*.json`, one paired seed. The one partial
+final validation of the baseline at wd 0.005 (update 46,400, 1,536 of 4,656
+examples) is excluded. Numbers and caveats are in
+`study_outputs/approved_comparison/study_report_corrected.md`. The script
+`scripts/plot_figures.py` regenerates the figures from the saved records.
+
 ## Sources
 
 Model/data/filter logic reused with attribution from `ironjr/grokfast`
