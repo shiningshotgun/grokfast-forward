@@ -1,45 +1,13 @@
 # What this taught me
 
-This experiment gave me a result worth keeping. It also gave me a timing claim that was wrong. I don't need another training run to separate the two. I need to read what was actually recorded.
+I ran a Grokfast-style experiment on my Mac with four arms: EMA of gradients on or off, weight decay 0.005 or 0. One seed. Recorded work time was 94 minutes 40 seconds, and the timer missed a little initial setup.
 
-## Fewer updates and less time are different claims
+With weight decay 0.005, the baseline first reached 95% validation accuracy at update 5,900 and the EMA arm at update 1,200, a 4.92x difference in updates to first crossing on a 100-update evaluation grid. With no weight decay, neither arm crossed 95% before its stopping limit: baseline's last full evaluation was 93.90% at 50,000 updates, EMA's was 61.38% at 41,900, with training stopped at 41,919. The EMA result depends on the decay setting, and this was one seed.
 
-With Adam's coupled weight decay at 0.005, the baseline first recorded at least 95% validation accuracy at update 5,900. EMA did it at 1,200. That's a 4.92x ratio in updates to the first observed crossing, on a 100-update evaluation grid.
+My first timing claim, 0.68x, was wrong. Each arm's timestamps started at the beginning of the whole study and the arms ran one after another, so the later arm's clock included the earlier arms. Dividing those numbers doesn't compare the arms. The saved records do support a narrower interval: from the end of each arm's initial validation to the end of its first 95% evaluation, baseline took 183.27 seconds and EMA 38.80 seconds, 4.72x over that stretch. That stretch includes training, evaluations, and I/O, and excludes initialization. I should have logged explicit arm start and end times and broken timing out by phase from the beginning.
 
-The reported 0.68x time ratio was invalid. Each timestamp started at the beginning of the whole study. The arms ran sequentially, so the later arm's timestamp included the earlier arms. Dividing those timestamps doesn't compare how long the two arms took to learn.
+After first crossing 95%, the baseline fell back below it in 12 later full evaluations, EMA in 3. The baseline's lowest was 57.32%, EMA's 85.57%. Both last complete evaluations were 100%. Baseline's evaluation at 46,400 updates covered only 1,536 of 4,656 validation examples before the deadline stopped it, so for endpoint numbers I used its last complete evaluation at 46,300. EMA's last complete evaluation was at 43,800, with training reaching 43,886.
 
-The saved records still support a useful comparison. From the END of each arm's initial validation to the END of its first 95% evaluation, baseline took 183.27 seconds and EMA took 38.80 seconds. That's a 4.72x ratio over that interval. It includes the training, evaluations and I/O in between. It excludes initialization and the initial validation. Calling it whole-run speedup would be wrong again.
+The suite logged 32 passing tests. Two of the new tests were weaker than their names: the chunked-versus-continuous test checked that both paths reached 20 updates and never compared the states, and the deadline test checked that an output directory existed. The run is still usable on the strength of the existing resume tests, source inspection, and contiguous update records; that doesn't fix the two weak tests.
 
-I need the start point, end point and denominator before I use a timing number. The calculation can be correct and the comparison can still be meaningless.
-
-## The decay setting is part of the result
-
-At decay 0.005, EMA crossed earlier and both arms eventually recorded 100% full-validation accuracy. Without decay, neither crossed 95% within its stopping limit. Baseline's last full result was 93.90%; EMA's was 61.38%.
-
-Those zero-decay endpoints came from different limits: baseline reached 50,000 updates; EMA stopped at 41,919, with its last full evaluation at 41,900. They aren't equal-duration or equal-update endpoints.
-
-The result is EMA helping the first crossing in this seed and decay setting. It isn't proof that EMA always helps, that decay alone explains the behavior, or that this reproduces the whole paper. Four arms make the comparison more informative. They don't turn one seed into a universal result.
-
-## First crossing doesn't mean it stayed there
-
-After first crossing 95%, the baseline had 12 later full evaluations below it. EMA had 3. The baseline fell as low as 57.32%; EMA fell to 85.57% after crossing.
-
-Both last complete evaluations were 100%, but that doesn't erase those reversals. The claim I can make is earlier first observed crossing. I can't replace that with uninterrupted generalization.
-
-The evaluation boundary matters too. Baseline's evaluation at 46,400 updates covered only 1,536 of 4,656 validation examples before the deadline. Its last complete evaluation was at 46,300. EMA's last complete evaluation was at 43,800, though training reached 43,886. A partial pass showing 100% is not a full-set 100% result.
-
-I need to report the crossing, what happened afterward, and the last complete observation. One threshold number leaves too much out.
-
-## Passing tests don't automatically prove the claim in their names
-
-The saved log shows 32 tests passing. That matters. But the new test called chunked-versus-continuous state equivalence only checked that both paths reached 20 updates. It didn't compare the states. The new deadline test checked that an output directory existed, not that both deadline rules worked.
-
-I need to read the assertions, not count green lines. A test needs to fail when the property it claims to protect is broken. Existing resume tests, source inspection and contiguous recorded updates support using this run. They don't make the weak assertions stronger or turn a saved log into an independent execution.
-
-## Keeping the evidence made the correction possible
-
-The raw metrics let me recover the timing interval, exclude the partial validation, count reversals and keep the actual result without retraining. The source fingerprints matched the verified model, data and filter files. The recorded work time was 94 minutes 40 seconds, but the timer omitted a little initial setup, so it isn't an exactly all-inclusive runtime claim.
-
-For the next experiment, I want explicit arm-start and arm-end timestamps, separate setup/evaluation/checkpoint timing, and tests that compare the state they name. More seeds would answer a different question. They need a separate experiment, not a quiet extension of this one.
-
-For this run, the raw evidence remains frozen and unchanged. The corrected summary and report are saved separately alongside the originals, without modifying the training records or starting another run.
+All raw records from this run are frozen. The corrected summary and report sit alongside the originals. Next time: arm-level timestamps, timing by phase, and tests that compare the states they name.
