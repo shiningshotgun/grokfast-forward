@@ -32,19 +32,19 @@ STUDY_NAME = "approved_comparison_20261020"
 UPSTREAM_COMMIT = "93b2248e351d4bb9e4dda8ac32a6999b8970404b"
 
 
-def build_model():
-    # independent stream for model init, seed 0
-    torch.manual_seed(0)
+def build_model(seed=0):
+    # independent stream for model init; seed selects the run's paired seed
+    torch.manual_seed(seed)
     return Decoder(
         dim=128, num_layers=2, num_heads=4, num_tokens=P + 2, seq_len=SEQ_LEN
     )
 
 
-def build_data():
+def build_data(seed=0):
     eq_token = P
     op_token = P + 1
     data = multiplication_mod_p_data(P, eq_token, op_token)
-    g_split = torch.Generator().manual_seed(0)
+    g_split = torch.Generator().manual_seed(seed)
     perm = torch.randperm(data.shape[1], generator=g_split)
     train_idx, valid_idx = perm.split(data.shape[1] // 2)
     train_data = data[:, train_idx].clone()
@@ -52,8 +52,8 @@ def build_data():
     return train_data, valid_data, g_split
 
 
-def make_order_gen():
-    return torch.Generator().manual_seed(0)
+def make_order_gen(seed=0):
+    return torch.Generator().manual_seed(seed)
 
 
 def make_optimizer(model, weight_decay):
@@ -298,7 +298,7 @@ def load_checkpoint(path, device):
     )
 
 
-def run_arm(arm, deadline, out_dir, device, clock=time.monotonic):
+def run_arm(arm, deadline, out_dir, device, clock=time.monotonic, seed=0):
     if clock() >= deadline:
         return {
             "arm": arm["name"],
@@ -313,9 +313,9 @@ def run_arm(arm, deadline, out_dir, device, clock=time.monotonic):
             "overrun": True,
             "checkpoint_saved": False,
         }
-    model = build_model().to(device)
-    train_data, valid_data, g_split = build_data()
-    g_order = make_order_gen()
+    model = build_model(seed).to(device)
+    train_data, valid_data, g_split = build_data(seed)
+    g_order = make_order_gen(seed)
     optimizer = make_optimizer(model, arm["wd"])
     scheduler = make_scheduler(optimizer)
     grads = None
@@ -409,7 +409,7 @@ def run_arm(arm, deadline, out_dir, device, clock=time.monotonic):
     }
 
 
-def run_pilot(out_dir, clock=time.monotonic):
+def run_pilot(out_dir, clock=time.monotonic, seed=0):
     # guard: if records exist, don't run
     if os.path.exists(out_dir):
         existing = [f for f in os.listdir(out_dir)]
@@ -450,7 +450,7 @@ def run_pilot(out_dir, clock=time.monotonic):
             with open(os.path.join(out_dir, f"arm_{arm['name']}.json"), "w") as f:
                 json.dump(r, f, indent=2)
             continue
-        r = run_arm(arm, deadline, out_dir, device, clock=clock)
+        r = run_arm(arm, deadline, out_dir, device, clock=clock, seed=seed)
         results.append(r)
         with open(os.path.join(out_dir, f"arm_{arm['name']}.json"), "w") as f:
             json.dump(r, f, indent=2)
@@ -580,10 +580,10 @@ def run_pilot(out_dir, clock=time.monotonic):
 
 
 def run_study_arm(arm, cap, eval_every, checkpoint_every, deadline, out_dir, device,
-                 clock, global_start):
-    model = build_model().to(device)
-    train_data, valid_data, g_split = build_data()
-    g_order = make_order_gen()
+                 clock, global_start, seed=0):
+    model = build_model(seed).to(device)
+    train_data, valid_data, g_split = build_data(seed)
+    g_order = make_order_gen(seed)
     optimizer = make_optimizer(model, arm["wd"])
     scheduler = make_scheduler(optimizer)
     grads = None
@@ -779,12 +779,14 @@ def run_study_arm(arm, cap, eval_every, checkpoint_every, deadline, out_dir, dev
     }
 
 
-def run_study(base_dir=None, clock=time.monotonic):
+def run_study(base_dir=None, clock=time.monotonic, seed=0, study_name=None):
     if base_dir is None:
         base_dir = os.path.dirname(os.path.abspath(__file__))
+    if study_name is None:
+        study_name = STUDY_NAME
     out_root = os.path.join(base_dir, "study_outputs")
-    marker = os.path.join(out_root, STUDY_NAME + ".started")
-    results_dir = os.path.join(out_root, STUDY_NAME)
+    marker = os.path.join(out_root, study_name + ".started")
+    results_dir = os.path.join(out_root, study_name)
 
     if os.path.exists(marker) or os.path.exists(results_dir):
         print("Refusing study: marker or results already exist.")
@@ -846,11 +848,12 @@ def run_study(base_dir=None, clock=time.monotonic):
             "total_seconds": STUDY_TOTAL_SECONDS,
         },
         "seeds": {
-            "model": 0,
-            "split": 0,
-            "order": 0,
+            "model": seed,
+            "split": seed,
+            "order": seed,
             "independent_streams": True,
         },
+        "study_name": study_name,
         "fingerprints": {
             "model.py": sha256_file(os.path.join(base_dir, "model.py")),
             "data.py": sha256_file(os.path.join(base_dir, "data.py")),
@@ -916,6 +919,7 @@ def run_study(base_dir=None, clock=time.monotonic):
             device,
             clock,
             global_start,
+            seed=seed,
         )
         results.append(r)
 
@@ -1052,6 +1056,10 @@ def main():
     ap.add_argument("--pilot", action="store_true", help="run the resource pilot")
     ap.add_argument("--study", action="store_true", help="run the approved capped comparison")
     ap.add_argument("--out", default=None, help="output directory")
+    ap.add_argument("--seed", type=int, default=0,
+                    help="paired seed for model init, split, and ordering (default 0)")
+    ap.add_argument("--study-name", default=None,
+                    help="study output name under study_outputs (default: approved comparison)")
     ap.add_argument("--inspect", action="store_true", help="inspect records")
     args = ap.parse_args()
 
@@ -1076,7 +1084,7 @@ def main():
         run_id = datetime.now().strftime("run_%Y%m%d_%H%M%S")
         out_dir = args.out or os.path.join(po, run_id)
         os.makedirs(os.path.dirname(out_dir), exist_ok=True)
-        results, elapsed, maxrss = run_pilot(out_dir)
+        results, elapsed, maxrss = run_pilot(out_dir, seed=args.seed)
         print("Pilot done. elapsed", elapsed, "maxrss", maxrss)
         for r in results:
             print(r["arm"], r["status"], r["updates_done"])
@@ -1085,7 +1093,7 @@ def main():
     if args.study:
         base = os.path.dirname(os.path.abspath(__file__))
         out_dir = args.out or base
-        result = run_study(out_dir)
+        result = run_study(out_dir, seed=args.seed, study_name=args.study_name)
         if result is None:
             print("Study refused or already present.")
             sys.exit(2)
