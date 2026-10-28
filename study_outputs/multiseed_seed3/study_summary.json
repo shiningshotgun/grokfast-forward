@@ -1,0 +1,90 @@
+{
+  "run_id": "approved_comparison_20261020",
+  "global_deadline_start_monotonic": 2.023322416,
+  "work_elapsed_s": 5209.245035542,
+  "reporting_overhead_s": 0.017641916000684432,
+  "reporting_sample_endpoint": "after arm writes and before summary/report writes; excludes final markdown write",
+  "deadline_s": 6000,
+  "per_arm_deadline_s": 1500,
+  "cap_per_arm": 50000,
+  "maxrss_bytes": 301301760,
+  "arms": [
+    {
+      "name": "none_wd0",
+      "status": "completed_cap",
+      "updates_done": 50000,
+      "first_crossing_step": 38200,
+      "first_crossing_work_elapsed_s": 880.585934,
+      "last_complete_step": 50000,
+      "last_complete_acc": 0.9847508591065293,
+      "last_complete_loss": 0.1087878589767201,
+      "best_complete_step": 50000,
+      "best_complete_acc": 0.9847508591065293,
+      "best_complete_loss": 0.1087878589767201,
+      "off_grid_final": null,
+      "censored": false
+    },
+    {
+      "name": "ema_wd0",
+      "status": "completed_cap",
+      "updates_done": 50000,
+      "first_crossing_step": 35000,
+      "first_crossing_work_elapsed_s": 1999.674331084,
+      "last_complete_step": 50000,
+      "last_complete_acc": 0.9959192439862543,
+      "last_complete_loss": 0.07710075974976484,
+      "best_complete_step": 50000,
+      "best_complete_acc": 0.9959192439862543,
+      "best_complete_loss": 0.07710075974976484,
+      "off_grid_final": null,
+      "censored": false
+    },
+    {
+      "name": "none_wd0.005",
+      "status": "completed_cap",
+      "updates_done": 50000,
+      "first_crossing_step": 7900,
+      "first_crossing_work_elapsed_s": 2623.55028775,
+      "last_complete_step": 50000,
+      "last_complete_acc": 1.0,
+      "last_complete_loss": 0.03907598036619806,
+      "best_complete_step": 9900,
+      "best_complete_acc": 1.0,
+      "best_complete_loss": 0.18635954910127567,
+      "off_grid_final": null,
+      "censored": false
+    },
+    {
+      "name": "ema_wd0.005",
+      "status": "completed_cap",
+      "updates_done": 50000,
+      "first_crossing_step": 1500,
+      "first_crossing_work_elapsed_s": 3751.8610758749996,
+      "last_complete_step": 50000,
+      "last_complete_acc": 1.0,
+      "last_complete_loss": 0.005631665860805213,
+      "best_complete_step": 2400,
+      "best_complete_acc": 1.0,
+      "best_complete_loss": 0.016028021894318543,
+      "off_grid_final": null,
+      "censored": false
+    }
+  ],
+  "crossing_speedups": [
+    {
+      "pair": "none_wd0 vs ema_wd0",
+      "update_ratio_baseline_over_ema": 1.0914285714285714,
+      "work_time_ratio_baseline_over_ema": 0.4403646735429387
+    },
+    {
+      "pair": "none_wd0.005 vs ema_wd0.005",
+      "update_ratio_baseline_over_ema": 5.266666666666667,
+      "work_time_ratio_baseline_over_ema": 0.6992663733259745
+    }
+  ],
+  "notes": [
+    "One paired seed; not universal or multi-seed evidence.",
+    "Pilot extrapolation ~61 minutes training across four 50k arms did not isolate validation overhead.",
+    "100-minute ceiling promises neither completion nor generalization."
+  ]
+}

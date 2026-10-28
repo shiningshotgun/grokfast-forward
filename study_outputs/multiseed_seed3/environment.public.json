@@ -1,0 +1,18 @@
+{
+  "python": "3.9.6 (default, Aug 25 2026, 21:26:21) \n[Clang 21.0.0 (clang-2100.3.34.2)]",
+  "executable": "<local-path-redacted>",
+  "torch": "2.8.0",
+  "numpy": "2.0.2",
+  "backend": "cpu",
+  "mps_available": true,
+  "cpu_threads": 4,
+  "maxrss_bytes": 175767552,
+  "maxrss_unit": "bytes (macOS ru_maxrss)",
+  "_provenance": {
+    "source_file": "environment.json (untracked, local only)",
+    "source_sha256": "2c388283c1eb1d99cdc249bb555931573831497c7c9c7e8d8e3c54fbb6a97325",
+    "sanitized_fields": {
+      "executable": "real local interpreter path redacted; all other fields byte-identical"
+    }
+  }
+}
