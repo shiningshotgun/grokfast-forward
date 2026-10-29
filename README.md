@@ -40,6 +40,20 @@ examples) is excluded. Numbers and caveats are in
 `study_outputs/approved_comparison/study_report_corrected.md`. The script
 `scripts/plot_figures.py` regenerates the figures from the saved records.
 
+## Multi-seed extension (five paired seeds)
+
+The single-seed study above is unchanged. A five-seed extension runs the same four-arm design (Grokfast-EMA vs no filter, at weight decay 0 and 0.005) on five paired seeds, every arm to 50,000 updates, under a prospective analysis specification committed before this comparison's scoring (docs/analysis_spec.md). Run records live in study_outputs/multiseed_*/; the analysis (script, regression tests, outputs) lives in analysis/. An earlier version of the analysis mis-computed two marginal medians by dropping censored seeds; the correction is documented in docs/analysis_corrections.md.
+
+Crossing rule: the first evaluation at or above 99% validation accuracy that is never followed by a drop below that threshold. An arm that has not crossed by the final evaluation is right-censored at the cap - never counted as crossing at 50,000, never dropped.
+
+Results, from the committed analysis outputs only:
+
+- Weight decay 0: baseline crossed in 0 of 5 seeds (marginal median not estimable within the horizon); EMA crossed in 4 of 5 (marginal median 49,700 updates; crossings 46,800-49,900). Final validation accuracy at 50,000 updates: median paired difference +12.69 percentage points for EMA (range -12.18 to +30.30), higher for EMA in 4 of 5 seeds.
+- Weight decay 0.005: EMA crossed in 5 of 5 seeds (marginal median 44,700 updates); baseline in 4 of 5 (marginal median 46,900). In the 4 pairs where both arms crossed, the median paired crossing difference was -700 updates (EMA minus baseline; range -29,300 to +23,700, including one seed where baseline crossed much earlier); in the fifth pair EMA crossed while baseline was censored. All both-crossed pairs ended at 100% validation accuracy.
+- Scope: five descriptive seeds. These numbers characterize this sample under this protocol; they are not a general or causal claim.
+
+Seeds 1 and 4 ran under an amended wall-clock budget (2,100 s/arm instead of 1,500 s) to reach the same 50,000-update cap; for the two arm-pairs checked, the recorded validation curves match the superseded partial runs exactly over the shared prefix (a recorded-curve comparison only - it cannot prove determinism); the other rerun arms were not part of that check, so their comparability rests on same-code, same-seed, same-cap reasoning and remains an assumption. This is disclosed in the analysis records.
+
 ## Sources
 
 Model/data/filter logic reused with attribution from `ironjr/grokfast`

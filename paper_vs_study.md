@@ -41,3 +41,13 @@ Does not support: a general EMA speedup, the paper's 50x claim, a result for Gro
 - The weight decay of the paper's plotted baseline, which the text I read does not state.
 - Whether the paper's evaluation interval matches our 100-update grid.
 - Whether our result would hold across more seeds. The study makes no claim either way. This page does not set a required seed count.
+
+
+## Addendum: the five-seed extension against the paper
+
+The sections above compare the paper with the original single-seed study. This addendum covers the five-seed extension (five paired seeds, same four arms, 50,000 updates per arm, prospective analysis specification in docs/analysis_spec.md).
+
+- Where the single-seed study could only illustrate, the extension gives a small-sample read at our scale. With weight decay 0.005, EMA crossed the sustained-99% threshold in all 5 seeds against 4 of 5 for baseline, with marginal medians of 44,700 updates (EMA) and 46,900 (baseline); the four pairs where both crossed had a median paired difference of -700 updates (EMA minus baseline) with a wide range (-29,300 to +23,700), including one seed where baseline crossed far earlier. The direction favors EMA on crossing; the scatter is large.
+- With weight decay 0, baseline never crossed within the horizon (0 of 5 seeds), while EMA crossed in 4 of 5, late in training (marginal median 49,700). The single-seed study could not establish anything here because neither of its wd-0 arms crossed.
+- Consistency, not validation: these results are directionally consistent with the acceleration the paper reports, at our smaller scale and different setup (the setup differences listed above still apply). Agreement with the paper is consistency between references, not independent validation of either. No causal claim and no cross-architecture generalization follows from five descriptive seeds.
+- Method notes: crossing required sustained 99% validation accuracy through the final evaluation; arms not crossing were treated as right-censored, never substituted at the cap; marginal medians are reported only where at least 3 seeds crossed. An earlier analysis version dropped censored seeds from two marginal medians and was corrected; see docs/analysis_corrections.md.
