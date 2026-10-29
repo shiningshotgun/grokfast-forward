@@ -8,8 +8,9 @@ Implements the prospective analysis specification in docs/analysis_spec.md exact
   - Crossing steps: computed ONLY for both-cross pairs, labelled as conditional subset.
     Sign convention: NEGATIVE means EMA crossed sooner.
   - Final validation accuracy: at step 50000.
-    Sign convention: POSITIVE means EMA ended higher.
-- Marginal medians: estimable only if >= 3 seeds cross.
+    Sign convention: POSITIVE means EMA ended higher. Units: percentage points (pp).
+- Marginal medians: computed across all 5 seeds with censored seeds ordered above observed crossings.
+  Reported only when >= 3 crossings observed AND the 3rd ordered value is an observed crossing.
 - Part B: Prefix-consistency check between superseded and canonical runs over shared updates.
 """
 
@@ -41,6 +42,52 @@ SEEDS = [
 ]
 
 ARMS = ["none_wd0", "ema_wd0", "none_wd0.005", "ema_wd0.005"]
+
+
+def compute_marginal_median(observed_crossings, total_seeds=5):
+    """Computes marginal median across total_seeds under right-censoring beyond the horizon.
+    
+    Censored seeds are ordered above any observed crossing.
+    For total_seeds=5 (or any odd total_seeds), the median is at index total_seeds // 2.
+    The median is estimable if and only if at least (total_seeds // 2 + 1) crossings were observed
+    AND the median-index ordered value is an observed crossing.
+    Otherwise returns None.
+    """
+    median_idx = total_seeds // 2
+    if len(observed_crossings) > median_idx:
+        sorted_crossings = sorted(observed_crossings)
+        return sorted_crossings[median_idx]
+    return None
+
+
+def format_marginal_median(observed_crossings, total_seeds=5):
+    """Formats marginal median string for reports."""
+    m = compute_marginal_median(observed_crossings, total_seeds=total_seeds)
+    if m is not None:
+        return f"{m:,}"
+    else:
+        return f"not estimable within the 50,000-update horizon ({len(observed_crossings)}/{total_seeds} crossed)"
+
+
+def classify_pair_and_diff(m_none, m_ema):
+    """Classifies a paired comparison and computes crossing difference if uncensored.
+    
+    Returns (quadrant, diff_cross).
+    diff_cross is an integer if both crossed, or None if either arm was censored.
+    """
+    if m_none["crossed"] and m_ema["crossed"]:
+        quadrant = "both-cross"
+        diff_cross = m_ema["cross_step"] - m_none["cross_step"]  # negative = EMA sooner
+    elif m_ema["crossed"] and not m_none["crossed"]:
+        quadrant = "EMA-only-cross"
+        diff_cross = None
+    elif m_none["crossed"] and not m_ema["crossed"]:
+        quadrant = "none-only-cross"
+        diff_cross = None
+    else:
+        quadrant = "neither"
+        diff_cross = None
+    return quadrant, diff_cross
 
 
 def validate_and_load_records():
@@ -122,8 +169,10 @@ def run_part_b_prefix_check():
     summary_lines = [
         "# Part B: Prefix-Consistency Check Report",
         "",
-        "Empirical examination of the comparability assumption between initial and amended-budget reruns.",
-        "Over the shared update range, validation accuracy curves are aligned point-by-point.",
+        "Empirical examination of the recorded validation-accuracy curves between initial and amended-budget reruns.",
+        "Over the shared update range, recorded validation-accuracy curves at the shared evaluation points are compared.",
+        "",
+        "**Scope Note**: This comparison covers exactly two arm-pairs: Seed 4 `none_wd0` (Attempt 1 vs Attempt 2) and Seed 1 `ema_wd0` (Attempt 2 vs Attempt 3). The other rerun arms were not part of this prefix comparison, and no claim is made about whether superseded records exist for them. Exact agreement of the recorded validation-accuracy curves over the shared prefix for these two arm-pairs supports (cannot prove) treating those two reruns as the same trajectory. For the other rerun arms, comparability rests on same-code/same-seed/same-cap reasoning, stated as an assumption.",
         "",
     ]
 
@@ -184,7 +233,7 @@ def run_part_b_prefix_check():
         summary_lines.append(f"- **Aligned Evaluation Count**: {len(shared_steps)}")
         summary_lines.append(f"- **Maximum Absolute Accuracy Difference**: {max_diff:.10f}")
         summary_lines.append(f"- **Mean Absolute Accuracy Difference**: {mean_diff:.10f}")
-        summary_lines.append(f"- **Trajectory Alignment**: {'PERFECT BIT-FOR-BIT MATCH (0.000000000 diff)' if max_diff == 0.0 else f'Divergence observed (max {max_diff:.6f})'}")
+        summary_lines.append(f"- **Curve Agreement**: {'Exact match of recorded validation accuracy across all shared evaluation points (max diff 0.0000000000)' if max_diff == 0.0 else f'Divergence observed (max {max_diff:.6f})'}")
         summary_lines.append("")
 
         print(f"{p['label']}: {len(shared_steps)} aligned steps (up to {max_step}), max diff={max_diff:.10f}, mean diff={mean_diff:.10f}")
@@ -211,11 +260,9 @@ def compute_crossing_step(val_records, threshold=0.99):
     
     Returns (crossing_step, True) if crossed; (None, False) if right-censored.
     """
-    # Find candidates
     candidates = [v for v in val_records if v.get("acc") is not None and v["acc"] >= threshold]
     for c in candidates:
         c_step = c["step"]
-        # Check all subsequent evaluations
         subsequent = [v for v in val_records if v["step"] >= c_step]
         if all(v.get("acc") is not None and v["acc"] >= threshold for v in subsequent):
             return c_step, True
@@ -273,7 +320,8 @@ def run_part_c_analysis(data):
         ema_name = f"ema_wd{wd_str}"
 
         both_cross_diffs = []
-        final_acc_diffs = []
+        both_cross_faster_ema_count = 0
+        final_acc_diffs_pp = []
         quadrant_counts = {"both-cross": 0, "EMA-only-cross": 0, "none-only-cross": 0, "neither": 0}
         faster_ema_count = 0
         higher_ema_count = 0
@@ -282,29 +330,21 @@ def run_part_c_analysis(data):
             m_none = arm_metrics[(seed_num, none_name)]
             m_ema = arm_metrics[(seed_num, ema_name)]
 
-            # Quadrant classification
-            if m_none["crossed"] and m_ema["crossed"]:
-                quadrant = "both-cross"
-                diff_cross = m_ema["cross_step"] - m_none["cross_step"]  # negative = EMA sooner
-                both_cross_diffs.append(diff_cross)
-                if diff_cross < 0:
-                    faster_ema_count += 1
-            elif m_ema["crossed"] and not m_none["crossed"]:
-                quadrant = "EMA-only-cross"
-                diff_cross = None
-                faster_ema_count += 1  # EMA crossed while none censored -> EMA faster
-            elif m_none["crossed"] and not m_ema["crossed"]:
-                quadrant = "none-only-cross"
-                diff_cross = None
-            else:
-                quadrant = "neither"
-                diff_cross = None
-
+            # Quadrant classification & difference
+            quadrant, diff_cross = classify_pair_and_diff(m_none, m_ema)
             quadrant_counts[quadrant] += 1
 
-            diff_acc = m_ema["final_acc"] - m_none["final_acc"]  # positive = EMA higher
-            final_acc_diffs.append(diff_acc)
-            if diff_acc > 0:
+            if quadrant == "both-cross":
+                both_cross_diffs.append(diff_cross)
+                if diff_cross < 0:
+                    both_cross_faster_ema_count += 1
+                    faster_ema_count += 1
+            elif quadrant == "EMA-only-cross":
+                faster_ema_count += 1  # EMA crossed while none censored -> EMA faster
+
+            diff_acc_pp = (m_ema["final_acc"] - m_none["final_acc"]) * 100.0  # percentage points (pp)
+            final_acc_diffs_pp.append(diff_acc_pp)
+            if diff_acc_pp > 0:
                 higher_ema_count += 1
 
             paired_rows.append({
@@ -318,7 +358,7 @@ def run_part_c_analysis(data):
                 "crossing_diff_ema_minus_none": diff_cross if diff_cross is not None else "N/A (censored)",
                 "none_final_acc": m_none["final_acc"],
                 "ema_final_acc": m_ema["final_acc"],
-                "final_acc_diff_ema_minus_none": diff_acc,
+                "final_acc_diff_ema_minus_none_pp": diff_acc_pp,
             })
 
         # Marginal crossings for none and ema
@@ -332,13 +372,14 @@ def run_part_c_analysis(data):
             "both_cross_diffs": both_cross_diffs,
             "both_cross_median": statistics.median(both_cross_diffs) if both_cross_diffs else "N/A (0 pairs)",
             "both_cross_range": (min(both_cross_diffs), max(both_cross_diffs)) if both_cross_diffs else "N/A",
+            "both_cross_faster_ema_count": both_cross_faster_ema_count,
             "none_cross_count": len(none_crossings),
-            "none_marginal_median": statistics.median(none_crossings) if len(none_crossings) >= 3 else f"not estimable within 50,000 updates ({len(none_crossings)}/5 crossed)",
+            "none_marginal_median": format_marginal_median(none_crossings, total_seeds=5),
             "ema_cross_count": len(ema_crossings),
-            "ema_marginal_median": statistics.median(ema_crossings) if len(ema_crossings) >= 3 else f"not estimable within 50,000 updates ({len(ema_crossings)}/5 crossed)",
-            "final_acc_diffs": final_acc_diffs,
-            "final_acc_diff_median": statistics.median(final_acc_diffs),
-            "final_acc_diff_range": (min(final_acc_diffs), max(final_acc_diffs)),
+            "ema_marginal_median": format_marginal_median(ema_crossings, total_seeds=5),
+            "final_acc_diffs_pp": final_acc_diffs_pp,
+            "final_acc_diff_median_pp": statistics.median(final_acc_diffs_pp),
+            "final_acc_diff_range_pp": (min(final_acc_diffs_pp), max(final_acc_diffs_pp)),
             "faster_ema_count": faster_ema_count,
             "higher_ema_count": higher_ema_count,
         }
@@ -349,7 +390,7 @@ def run_part_c_analysis(data):
         fieldnames = [
             "weight_decay", "seed", "none_arm", "none_crossing", "ema_arm", "ema_crossing",
             "pair_quadrant", "crossing_diff_ema_minus_none", "none_final_acc", "ema_final_acc",
-            "final_acc_diff_ema_minus_none"
+            "final_acc_diff_ema_minus_none_pp"
         ]
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
@@ -365,7 +406,8 @@ def run_part_c_analysis(data):
         "- **Primary Crossing Threshold**: First step with sustained validation accuracy $\\ge 0.99$ (never falling below 0.99 through step 50,000).",
         "- **Censoring Rule**: Non-crossing arms are strictly right-censored at $> 50,000$ updates.",
         "- **Sign Convention**: $\\Delta_{\\text{cross}} = \\text{EMA} - \\text{none}$ (negative favors EMA); $\\Delta_{\\text{acc}} = \\text{EMA} - \\text{none}$ (positive favors EMA).",
-        "- **Budget Disclosure**: Seeds 1 (attempt 3) and 4 (attempt 2) were run under amended 2,100s/arm budgets (total 9,000s); Seeds 2, 3, 5 under 1,500s/arm budgets (total 6,000s). All 5 seeds executed under update cap 50,000 with identical random seed streams and hyperparameters.",
+        "- **Accuracy Difference Units**: Reported as percentage points (pp).",
+        "- **Budget Disclosure & Trajectory Comparability**: Seeds 1 (attempt 3) and 4 (attempt 2) were run under amended 2,100s/arm budgets (total 9,000s); Seeds 2, 3, 5 under 1,500s/arm budgets (total 6,000s). All 5 seeds executed under update cap 50,000 with identical random seed streams and hyperparameters. Exact agreement of recorded validation-accuracy curves over the shared prefix for the two reported arm-pairs supports (cannot prove) treating those two reruns as the same trajectory. For the other rerun arms, comparability rests on same-code/same-seed/same-cap reasoning, stated as an assumption.",
         "",
         "## 2. Per-Seed / Per-Arm Results Table",
         "",
@@ -391,7 +433,7 @@ def run_part_c_analysis(data):
         d_cross = f"{r['crossing_diff_ema_minus_none']:,}" if isinstance(r['crossing_diff_ema_minus_none'], (int, float)) else r['crossing_diff_ema_minus_none']
         md_lines.append(
             f"| {r['weight_decay']} | {r['seed']} | `{r['pair_quadrant']}` | {c_none} | {c_ema} | {d_cross} | "
-            f"{r['none_final_acc']*100:.2f}% | {r['ema_final_acc']*100:.2f}% | {r['final_acc_diff_ema_minus_none']*100:+.2f}% |"
+            f"{r['none_final_acc']*100:.2f}% | {r['ema_final_acc']*100:.2f}% | {r['final_acc_diff_ema_minus_none_pp']:+.2f} pp |"
         )
 
     md_lines.extend([
@@ -410,8 +452,8 @@ def run_part_c_analysis(data):
             md_lines.append(f"- **Conditional Paired Crossing Difference** (conditional subset $n = {ps['both_cross_count']}/5$ pairs): median = {ps['both_cross_median']:,} updates, range = [{ps['both_cross_range'][0]:,}, {ps['both_cross_range'][1]:,}].")
         else:
             md_lines.append(f"- **Conditional Paired Crossing Difference**: Not estimable (0 pairs in `both-cross`).")
-        md_lines.append(f"- **Directional Speed Advantage (EMA crossed sooner or crossed while baseline censored)**: {ps['faster_ema_count']} of 5 seeds.")
-        md_lines.append(f"- **Final Validation Accuracy Difference (EMA - none)**: median = {ps['final_acc_diff_median']*100:+.2f}%, range = [{ps['final_acc_diff_range'][0]*100:+.2f}%, {ps['final_acc_diff_range'][1]*100:+.2f}%].")
+        md_lines.append(f"- **Directional Speed Advantage**: {ps['faster_ema_count']} of 5 seeds (in {ps['both_cross_faster_ema_count']} of {ps['both_cross_count']} uncensored pairs EMA crossed earlier, and in {ps['quadrant_counts']['EMA-only-cross']} pair(s) EMA crossed while baseline was censored).")
+        md_lines.append(f"- **Final Validation Accuracy Difference (EMA - none)**: median = {ps['final_acc_diff_median_pp']:+.2f} pp, range = [{ps['final_acc_diff_range_pp'][0]:+.2f} pp, {ps['final_acc_diff_range_pp'][1]:+.2f} pp].")
         md_lines.append(f"- **Sign Consistency for Final Accuracy (EMA > none)**: {ps['higher_ema_count']} of 5 seeds.")
         md_lines.append("")
 
@@ -488,13 +530,13 @@ def generate_plots(data, arm_metrics, paired_rows):
     ax1.legend(fontsize=8)
 
     # Subplot 2: Final Accuracy Differences (EMA - none)
-    diffs_wd0 = [arm_metrics[(s, "ema_wd0")]["final_acc"] - arm_metrics[(s, "none_wd0")]["final_acc"] for s in seeds_sorted]
-    diffs_wd005 = [arm_metrics[(s, "ema_wd0.005")]["final_acc"] - arm_metrics[(s, "none_wd0.005")]["final_acc"] for s in seeds_sorted]
+    diffs_wd0_pp = [(arm_metrics[(s, "ema_wd0")]["final_acc"] - arm_metrics[(s, "none_wd0")]["final_acc"]) * 100.0 for s in seeds_sorted]
+    diffs_wd005_pp = [(arm_metrics[(s, "ema_wd0.005")]["final_acc"] - arm_metrics[(s, "none_wd0.005")]["final_acc"]) * 100.0 for s in seeds_sorted]
 
-    ax2.plot(seeds_labels, [d * 100 for d in diffs_wd0], marker="o", linewidth=1.5, color="#7570b3", label="wd = 0.0")
-    ax2.plot(seeds_labels, [d * 100 for d in diffs_wd005], marker="s", linewidth=1.5, color="#e7298a", label="wd = 0.005")
+    ax2.plot(seeds_labels, diffs_wd0_pp, marker="o", linewidth=1.5, color="#7570b3", label="wd = 0.0")
+    ax2.plot(seeds_labels, diffs_wd005_pp, marker="s", linewidth=1.5, color="#e7298a", label="wd = 0.005")
     ax2.axhline(0, color="black", linestyle="--", alpha=0.6)
-    ax2.set_ylabel("Final Val Acc Diff: EMA - none (%)")
+    ax2.set_ylabel("Final Val Acc Diff: EMA - none (pp)")
     ax2.set_title("Final Accuracy Difference (Step 50,000)")
     ax2.legend(fontsize=8)
 

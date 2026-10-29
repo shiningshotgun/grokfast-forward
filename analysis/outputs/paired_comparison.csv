@@ -1,11 +1,11 @@
-weight_decay,seed,none_arm,none_crossing,ema_arm,ema_crossing,pair_quadrant,crossing_diff_ema_minus_none,none_final_acc,ema_final_acc,final_acc_diff_ema_minus_none
-0.0,1,none_wd0,RIGHT-CENSORED,ema_wd0,46800,EMA-only-cross,N/A (censored),0.7959621993127147,0.9954896907216495,0.19952749140893478
-0.0,2,none_wd0,RIGHT-CENSORED,ema_wd0,49900,EMA-only-cross,N/A (censored),0.6870704467353952,0.9901202749140894,0.3030498281786942
-0.0,3,none_wd0,RIGHT-CENSORED,ema_wd0,49700,EMA-only-cross,N/A (censored),0.9847508591065293,0.9959192439862543,0.011168384879725046
-0.0,4,none_wd0,RIGHT-CENSORED,ema_wd0,RIGHT-CENSORED,neither,N/A (censored),0.8541666666666666,0.7323883161512027,-0.12177835051546393
-0.0,5,none_wd0,RIGHT-CENSORED,ema_wd0,49400,EMA-only-cross,N/A (censored),0.8685567010309279,0.9954896907216495,0.12693298969072164
+weight_decay,seed,none_arm,none_crossing,ema_arm,ema_crossing,pair_quadrant,crossing_diff_ema_minus_none,none_final_acc,ema_final_acc,final_acc_diff_ema_minus_none_pp
+0.0,1,none_wd0,RIGHT-CENSORED,ema_wd0,46800,EMA-only-cross,N/A (censored),0.7959621993127147,0.9954896907216495,19.952749140893477
+0.0,2,none_wd0,RIGHT-CENSORED,ema_wd0,49900,EMA-only-cross,N/A (censored),0.6870704467353952,0.9901202749140894,30.30498281786942
+0.0,3,none_wd0,RIGHT-CENSORED,ema_wd0,49700,EMA-only-cross,N/A (censored),0.9847508591065293,0.9959192439862543,1.1168384879725046
+0.0,4,none_wd0,RIGHT-CENSORED,ema_wd0,RIGHT-CENSORED,neither,N/A (censored),0.8541666666666666,0.7323883161512027,-12.177835051546392
+0.0,5,none_wd0,RIGHT-CENSORED,ema_wd0,49400,EMA-only-cross,N/A (censored),0.8685567010309279,0.9954896907216495,12.693298969072163
 0.005,1,none_wd0.005,41300,ema_wd0.005,40200,both-cross,-1100,1.0,1.0,0.0
 0.005,2,none_wd0.005,49000,ema_wd0.005,48700,both-cross,-300,1.0,1.0,0.0
 0.005,3,none_wd0.005,46900,ema_wd0.005,17600,both-cross,-29300,1.0,1.0,0.0
-0.005,4,none_wd0.005,RIGHT-CENSORED,ema_wd0.005,48700,EMA-only-cross,N/A (censored),0.9456615120274914,1.0,0.05433848797250862
+0.005,4,none_wd0.005,RIGHT-CENSORED,ema_wd0.005,48700,EMA-only-cross,N/A (censored),0.9456615120274914,1.0,5.433848797250862
 0.005,5,none_wd0.005,21000,ema_wd0.005,44700,both-cross,23700,1.0,1.0,0.0
