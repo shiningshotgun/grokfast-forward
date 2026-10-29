@@ -1,0 +1,26 @@
+{
+  "study_name": "multiseed_seed1_attempt3",
+  "seed": 1,
+  "attempt": 3,
+  "supersedes": "multiseed_seed1_attempt2",
+  "user_approved": true,
+  "budget_amendment": {
+    "per_arm_seconds": {
+      "original": 1500,
+      "amended": 2100
+    },
+    "total_seconds": {
+      "original": 6000,
+      "amended": 9000,
+      "derivation": "derived: four arms at 2100s require 8400s; total budget set to 9000s"
+    },
+    "updates_per_arm_cap": 50000
+  },
+  "motivating_censored_arm": {
+    "name": "ema_wd0",
+    "attempt2_status": "deadline_stopped",
+    "attempt2_updates_done": 43900
+  },
+  "amended_runner_sha256": "794c8a26208b0c3714f6c27ab2f3268b6f2b315fd7ff84127d0ec88436fc55b7",
+  "restored_pinned_runner_sha256": "3f30029fea059711edc086116337f89d5b102711254861d8aa2e4aef201a5e58"
+}
