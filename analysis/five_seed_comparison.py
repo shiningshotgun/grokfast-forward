@@ -469,6 +469,30 @@ def run_part_c_analysis(data):
     return per_arm_rows, paired_rows, paired_summary
 
 
+def get_crossing_bar_props(m_arm, arm_color, default_cap=50000):
+    """Returns visual bar properties distinguishing observed crossings from right-censored runs."""
+    if m_arm.get("crossed"):
+        return {
+            "height": m_arm["cross_step"],
+            "color": arm_color,
+            "alpha": 0.85,
+            "edgecolor": "none",
+            "hatch": None,
+            "linewidth": 0.0,
+            "is_censored": False,
+        }
+    else:
+        return {
+            "height": default_cap,
+            "color": "none",
+            "alpha": 1.0,
+            "edgecolor": arm_color,
+            "hatch": "///",
+            "linewidth": 1.5,
+            "is_censored": True,
+        }
+
+
 def generate_plots(data, arm_metrics, paired_rows):
     """Generates visual comparisons for validation trajectories and crossing metrics."""
     print("Generating figures via matplotlib...")
@@ -510,24 +534,75 @@ def generate_plots(data, arm_metrics, paired_rows):
     print(f"Saved {grid_fig_path}")
 
     # Plot 2: Paired Crossing and Accuracy summary
+    import matplotlib.patches as mpatches
+
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
     fig.suptitle("Five-Seed Comparison: Grokfast-EMA vs Baseline", fontsize=13)
 
     # Subplot 1: Crossing Steps (wd=0.005 only, since wd=0 largely censors)
     seeds_labels = [f"Seed {s}" for s in seeds_sorted]
-    cross_none_005 = [arm_metrics[(s, "none_wd0.005")]["cross_step"] or 50000 for s in seeds_sorted]
-    cross_ema_005 = [arm_metrics[(s, "ema_wd0.005")]["cross_step"] or 50000 for s in seeds_sorted]
-
     x = range(len(seeds_sorted))
     width = 0.35
-    ax1.bar([i - width/2 for i in x], cross_none_005, width, label="none_wd0.005", color="#d95f02", alpha=0.85)
-    ax1.bar([i + width/2 for i in x], cross_ema_005, width, label="ema_wd0.005", color="#1b9e77", alpha=0.85)
+
+    has_censored = False
+    for i, s in enumerate(seeds_sorted):
+        m_none = arm_metrics[(s, "none_wd0.005")]
+        m_ema = arm_metrics[(s, "ema_wd0.005")]
+
+        pos_none = i - width / 2
+        props_none = get_crossing_bar_props(m_none, "#d95f02", default_cap=50000)
+        ax1.bar(
+            pos_none,
+            props_none["height"],
+            width,
+            color=props_none["color"],
+            alpha=props_none["alpha"],
+            edgecolor=props_none["edgecolor"],
+            hatch=props_none["hatch"],
+            linewidth=props_none["linewidth"],
+        )
+        if props_none["is_censored"]:
+            has_censored = True
+            ax1.scatter([pos_none], [50000], marker="x", color="#d95f02", s=50, zorder=5)
+
+        pos_ema = i + width / 2
+        props_ema = get_crossing_bar_props(m_ema, "#1b9e77", default_cap=50000)
+        ax1.bar(
+            pos_ema,
+            props_ema["height"],
+            width,
+            color=props_ema["color"],
+            alpha=props_ema["alpha"],
+            edgecolor=props_ema["edgecolor"],
+            hatch=props_ema["hatch"],
+            linewidth=props_ema["linewidth"],
+        )
+        if props_ema["is_censored"]:
+            has_censored = True
+            ax1.scatter([pos_ema], [50000], marker="x", color="#1b9e77", s=50, zorder=5)
+
     ax1.axhline(50000, color="gray", linestyle=":", label="50k Update Cap")
     ax1.set_xticks(list(x))
     ax1.set_xticklabels(seeds_labels)
     ax1.set_ylabel("Updates to Sustained >=0.99 Crossing")
     ax1.set_title("Crossing Steps (wd = 0.005)")
-    ax1.legend(fontsize=8)
+
+    handles1 = [
+        mpatches.Patch(facecolor="#d95f02", alpha=0.85, label="none_wd0.005"),
+        mpatches.Patch(facecolor="#1b9e77", alpha=0.85, label="ema_wd0.005"),
+        plt.Line2D([0], [0], color="gray", linestyle=":", label="50k Update Cap"),
+    ]
+    if has_censored:
+        handles1.append(
+            mpatches.Patch(
+                facecolor="none",
+                edgecolor="black",
+                hatch="///",
+                linewidth=1.2,
+                label="no crossing observed within 50k steps (censored)",
+            )
+        )
+    ax1.legend(handles=handles1, loc="upper left", bbox_to_anchor=(0.01, 0.99), framealpha=0.6, fontsize=7.5)
 
     # Subplot 2: Final Accuracy Differences (EMA - none)
     diffs_wd0_pp = [(arm_metrics[(s, "ema_wd0")]["final_acc"] - arm_metrics[(s, "none_wd0")]["final_acc"]) * 100.0 for s in seeds_sorted]

@@ -9,7 +9,12 @@ import os
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(REPO_ROOT, "analysis"))
 
-from five_seed_comparison import compute_marginal_median, format_marginal_median, classify_pair_and_diff
+from five_seed_comparison import (
+    compute_marginal_median,
+    format_marginal_median,
+    classify_pair_and_diff,
+    get_crossing_bar_props,
+)
 
 
 class TestMarginalMedianUnderCensoring(unittest.TestCase):
@@ -95,6 +100,32 @@ class TestPairedComparisonUnderCensoring(unittest.TestCase):
         quadrant, diff = classify_pair_and_diff(m_none, m_ema)
         self.assertEqual(quadrant, "neither")
         self.assertIsNone(diff)
+
+
+class TestPlottingCensoredProps(unittest.TestCase):
+    """Regression test ensuring censored runs are distinctly styled from observed crossings."""
+
+    def test_observed_crossing_bar_props(self):
+        # Observed crossing at step 41,300
+        m_arm = {"crossed": True, "cross_step": 41300}
+        props = get_crossing_bar_props(m_arm, "#d95f02", default_cap=50000)
+        self.assertFalse(props["is_censored"])
+        self.assertEqual(props["height"], 41300)
+        self.assertEqual(props["color"], "#d95f02")
+        self.assertEqual(props["edgecolor"], "none")
+        self.assertIsNone(props["hatch"])
+        self.assertEqual(props["linewidth"], 0.0)
+
+    def test_censored_bar_props(self):
+        # Censored run (never crossed)
+        m_arm = {"crossed": False, "cross_step": None}
+        props = get_crossing_bar_props(m_arm, "#d95f02", default_cap=50000)
+        self.assertTrue(props["is_censored"])
+        self.assertEqual(props["height"], 50000)
+        self.assertEqual(props["color"], "none")
+        self.assertEqual(props["edgecolor"], "#d95f02")
+        self.assertEqual(props["hatch"], "///")
+        self.assertGreater(props["linewidth"], 0.0)
 
 
 if __name__ == "__main__":
