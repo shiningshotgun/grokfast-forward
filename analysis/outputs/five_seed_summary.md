@@ -55,7 +55,7 @@
 - **Marginal Crossing Median (Baseline)**: not estimable within the 50,000-update horizon (0/5 crossed)
 - **Marginal Crossing Median (EMA)**: 49,700
 - **Conditional Paired Crossing Difference**: Not estimable (0 pairs in `both-cross`).
-- **Directional Speed Advantage**: 4 of 5 seeds (in 0 of 0 uncensored pairs EMA crossed earlier, and in 4 pair(s) EMA crossed while baseline was censored).
+- **Directional Speed Advantage**: 4 of 5 seeds (in 0 uncensored pairs; in 4 pair(s) EMA crossed while baseline was censored).
 - **Final Validation Accuracy Difference (EMA - none)**: median = +12.69 pp, range = [-12.18 pp, +30.30 pp].
 - **Sign Consistency for Final Accuracy (EMA > none)**: 4 of 5 seeds.
 

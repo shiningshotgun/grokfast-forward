@@ -29,7 +29,8 @@ for cosmetic consistency. The directory rename is sufficient.
 
 ## Old identifiers remaining inside fingerprinted source code
 
-`runner.py` is a fingerprinted source (SHA-256 recorded in `config.json`) and
+`runner.py` is a fingerprinted source (recorded SHA-256 `75b4029268c2b9d71718e582b4d4c57979698773e927ef028612c25bbcd2e111`
+in the original single-seed study `config.json` at initial commit `aca0c07`) and
 must not be edited. It contains:
 
 | File | Line | Token | Context |

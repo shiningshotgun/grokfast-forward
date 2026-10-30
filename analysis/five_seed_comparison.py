@@ -452,7 +452,10 @@ def run_part_c_analysis(data):
             md_lines.append(f"- **Conditional Paired Crossing Difference** (conditional subset $n = {ps['both_cross_count']}/5$ pairs): median = {ps['both_cross_median']:,} updates, range = [{ps['both_cross_range'][0]:,}, {ps['both_cross_range'][1]:,}].")
         else:
             md_lines.append(f"- **Conditional Paired Crossing Difference**: Not estimable (0 pairs in `both-cross`).")
-        md_lines.append(f"- **Directional Speed Advantage**: {ps['faster_ema_count']} of 5 seeds (in {ps['both_cross_faster_ema_count']} of {ps['both_cross_count']} uncensored pairs EMA crossed earlier, and in {ps['quadrant_counts']['EMA-only-cross']} pair(s) EMA crossed while baseline was censored).")
+        if ps['both_cross_count'] > 0:
+            md_lines.append(f"- **Directional Speed Advantage**: {ps['faster_ema_count']} of 5 seeds (in {ps['both_cross_faster_ema_count']} of {ps['both_cross_count']} uncensored pairs EMA crossed earlier, and in {ps['quadrant_counts']['EMA-only-cross']} pair(s) EMA crossed while baseline was censored).")
+        else:
+            md_lines.append(f"- **Directional Speed Advantage**: {ps['faster_ema_count']} of 5 seeds (in 0 uncensored pairs; in {ps['quadrant_counts']['EMA-only-cross']} pair(s) EMA crossed while baseline was censored).")
         md_lines.append(f"- **Final Validation Accuracy Difference (EMA - none)**: median = {ps['final_acc_diff_median_pp']:+.2f} pp, range = [{ps['final_acc_diff_range_pp'][0]:+.2f} pp, {ps['final_acc_diff_range_pp'][1]:+.2f} pp].")
         md_lines.append(f"- **Sign Consistency for Final Accuracy (EMA > none)**: {ps['higher_ema_count']} of 5 seeds.")
         md_lines.append("")
