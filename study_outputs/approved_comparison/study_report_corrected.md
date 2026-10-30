@@ -12,7 +12,7 @@
 - **Evaluation Grid**: Every 100 updates on full validation set ($n = 4656$)
 - **Timing Boundary**: Timer starts after initial marker/thread setup; does not certify a literal all-setup-inclusive 100 minutes.
 - **Integrity & Bounds**: Honest in-flight deadline overruns and partial final validations are retained (no hard-kill enforcement).
-- **Verification Context**: Saved test log records 32 tests passing (`OK`, `EXIT_STATUS=0`), but lacks command/time headers and does not establish independent execution order. Two new tests have weak assertions (chunked-vs-continuous checks update count rather than parameter equivalence; deadline test checks directory existence rather than per-arm skip logic).
+- **Verification Context**: The public CI run (https://github.com/shiningshotgun/grokfast-forward/actions/runs/40989911192) runs exactly the 32 unit tests in tests/. Two new tests have weak assertions (chunked-vs-continuous checks update count rather than parameter equivalence; deadline test checks directory existence rather than per-arm skip logic).
 - **Scope of Claim**: Evaluated on one paired seed (seed 0) with unequal final caps. Demonstrates earlier crossing for EMA with weight decay on this configuration, not a universal mechanism or full-paper replication.
 
 ## Summary Table: Recomputed Full Validations

@@ -33,7 +33,7 @@ This is the Grokfast paper only. The sibling grokking study reproduces a differe
 ## What this study supports and does not
 
 Supports: with one paired seed at weight decay 0.005, EMA reached 95% validation accuracy in fewer updates than the matched baseline, and both ended with 100% last complete evaluations.
-Does not support: a general EMA speedup, the paper's 50x claim, a result for Grokfast-MA, a claim that weight decay alone explains the behavior, equal-effort endpoints at zero decay, or a replication of the whole paper. The saved test log shows 32 passing tests, with two weak assertions noted in the corrected report. The runtime is not a certified all-inclusive figure.
+Does not support: a general EMA speedup, the paper's 50x claim, a result for Grokfast-MA, a claim that weight decay alone explains the behavior, equal-effort endpoints at zero decay, or a replication of the whole paper. The public CI run (https://github.com/shiningshotgun/grokfast-forward/actions/runs/40989911192) runs exactly the 32 unit tests in tests/; two weak assertions are noted in the corrected report. The runtime is not a certified all-inclusive figure.
 
 ## Unknown or not checked
 
